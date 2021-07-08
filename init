@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+export AWS_PROFILE=mt
+export PATH="/home/ec2-user:${PATH}"
+env="$(basename "${PWD}")"
+export env="${2:$env}"
+tenant="$(basename "$(dirname "${PWD}")")"
+export tenant="${3:$tenant}"
+bucket_suffix="${1:-${bucket_suffix}}"
+export bucket_suffix="${1:-${bucket_suffix}}"
+export bucket_name="d360-${tenant}-${env}-${bucket_suffix}"
+echo "AWS_PROFILE: ${AWS_PROFILE}"
+echo "tenant: ${tenant}"
+echo "env: ${env}"
+echo "bucket_name: ${bucket_name}"

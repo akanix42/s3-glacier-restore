@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+source script-helpers.sh
+source trap.sh
+source init.sh
+
+while read -r file_path; do
+  aws s3api restore-object \
+    --restore-request Days=10 \
+    --bucket "${bucket_name}" \
+    --key "${file_path}"
+done <"$1"

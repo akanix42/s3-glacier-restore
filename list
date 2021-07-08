@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+source script-helpers.sh
+source trap.sh
+source init.sh
+
+set -x
+aws s3api list-objects-v2 \
+  --bucket "${bucket_name}" \
+  --query "Contents[?StorageClass=='GLACIER']" \
+  --output json \
+  | jq -r '.[].Key' \
+    >"${file_prefix}.list"

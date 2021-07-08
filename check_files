@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+source script-helpers.sh
+source trap.sh
+source init.sh
+# timestamp="$(date '+%Y-%m-%dT%H%M')"
+
+env="${env:-}"
+tenant="${tenant:-}"
+bucket_name="${bucket_name:-}"
+
+if ! check_required_variables \
+  'env' 'dev/stg/prd' \
+  'tenant' 'the tenant to target' \
+  'bucket_name' 'the s3 bucket to use'; then
+  exit 1
+fi
+
+file_prefix="${tenant}-${env}/files"
+mkdir -p "$(dirname "${file_prefix}")"
+
+loop_until_restored() {
+  local not_done_files_list="$1"
+  local files_to_check_list="${file_prefix}.to_check"
+  cp "${not_done_files_list}" "${files_to_check_list}"
+
+  while ! remaining_files="$(check_files "${files_to_check_list}")"; do
+    echo "sleeping"
+    sleep 600
+    printf '%s\n' "${remaining_files}" >"${files_to_check_list}"
+  done
+
+  echo "${file_prefix}.restored"
+}
+
+check_files() {
+  local exit_code=0
+  rm -f "${file_prefix}.notdone" \
+    "${file_prefix}.notglacier" \
+    "${file_prefix}.progress" \
+    "${file_prefix}.restored"
+  touch "${file_prefix}.restored"
+
+  while read -r file_path; do
+    shift
+    echo "${file_path}" >>"${file_prefix}".progress
+    if result="$(
+      set -x
+      aws s3api head-object --bucket "${bucket_name}" --key "${file_path}"
+    )"; then
+      if ! (
+        set -x
+        echo "${result}" | jq -e '.StorageClass'
+      ); then
+        echo "${file_path}" >>"${file_prefix}.notglacier"
+      elif echo "$result" | grep -q 'expiry-date'; then
+        echo "${file_path}" >>"${file_prefix}.restored"
+      else
+        echo "${file_path}"
+        echo "${file_path}" >>"${file_prefix}.notdone"
+        exit_code=1
+      fi
+    else
+      if ((exit_code != 1)); then
+        exit_code=2
+      fi
+      log_error "${file_path}"
+      echo "${file_path}" >>"${file_prefix}.err"
+    fi
+  done <"$1"
+
+  return "${exit_code}"
+}
+
+loop_until_restored "$@"

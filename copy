@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+source script-helpers.sh
+source trap.sh
+source init.sh
+
+env="${env:-}"
+tenant="${tenant:-}"
+bucket_name="${bucket_name:-}"
+# bucket_suffix="${bucket_suffix:-}"
+
+if
+  ! check_required_variables \
+    'env' 'dev/stg/prd' \
+    'tenant' 'the tenant to target' \
+    'bucket_suffix' 'the s3 bucket suffix' \
+    'bucket_name' 'the s3 bucket to use'
+then
+  exit 1
+fi
+
+while read -r file_path; do
+  aws s3 cp "s3://${bucket_name}/${file_path}" "s3://${bucket_name}/${file_path}" \
+    --storage-class STANDARD \
+    --force-glacier-transfer
+done <"$1"
