@@ -5,11 +5,25 @@ source script-helpers.sh
 source trap.sh
 source init.sh
 
-./disable-lifecycle
-./list
-./copy "${file_prefix}.list"
-./list
-./restore "${file_prefix}.list"
-./check_files "${file_prefix}.list"
-./copy "${file_prefix}.restored"
-./list
+buckets=(
+  avatars
+  backup
+  community
+  contactreports
+  data
+  global
+  outbound
+  resources
+)
+for bucket_suffix in "${buckets[@]}"; do
+  export bucket_suffix
+  export bucket_name="d360-${tenant}-${env}-${bucket_suffix}"
+  ./disable-lifecycle
+  ./list
+  ./copy "${file_prefix}.list"
+  ./list
+  ./restore "${file_prefix}.list"
+  ./check_files "${file_prefix}.list"
+  ./copy "${file_prefix}.restored"
+  ./list
+done
