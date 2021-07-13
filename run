@@ -5,6 +5,7 @@ source script-helpers.sh
 source trap.sh
 source init.sh
 
+./disable-lifecycle
 ./list
 ./copy "${file_prefix}.list"
 ./list

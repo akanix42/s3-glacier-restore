@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source script-helpers.sh
+source trap.sh
+source init.sh
+
+if aws s3api get-bucket-lifecycle-configuration \
+  --bucket "${bucket_name}" \
+  | jq '.Rules[].Status = "Disabled"' >"${tenant}-${env}/lifecycle.json" \
+  ; then
+  aws s3api put-bucket-lifecycle-configuration \
+    --bucket "${bucket_name}" \
+    --lifecycle-configuration "file://${tenant}-${env}/lifecycle.json"
+fi
