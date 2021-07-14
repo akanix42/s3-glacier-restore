@@ -21,11 +21,11 @@ for bucket_suffix in "${buckets[@]}"; do
   log_progress 'disabling lifecycle rules'
   ./disable-lifecycle
   log_progress 'retrieving initial file list'
-  ./list
+  ./list || continue
   log_progress 'attempting to permanently restore files'
   ./copy "${file_prefix}.list"
   log_progress 'retrieving updated file list'
-  ./list
+  ./list || continue
   log_progress 'restoring files'
   ./restore "${file_prefix}.list"
   log_progress 'waiting for restore to complete'

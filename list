@@ -12,3 +12,7 @@ aws s3api list-objects-v2 \
   --output json \
   | jq -r '.[].Key' \
     >"${output_filename}"
+
+if [[ "$(wc -l <"${output_filename}")" == '0' ]]; then
+  exit 1
+fi
