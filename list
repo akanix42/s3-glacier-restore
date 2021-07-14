@@ -11,7 +11,7 @@ aws s3api list-objects-v2 \
   --query "Contents[?StorageClass=='GLACIER']" \
   --output json \
   | jq -r '.[].Key' \
-    >"${output_filename}"
+    >"${output_filename}" 2>/dev/null
 
 if [[ "$(wc -l <"${output_filename}")" == '0' ]]; then
   exit 1
