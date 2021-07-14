@@ -18,6 +18,7 @@ buckets=(
 for bucket_suffix in "${buckets[@]}"; do
   export bucket_suffix
   export bucket_name="d360-${tenant}-${env}-${bucket_suffix}"
+  log_progress "bucket: ${bucket_name}"
   log_progress 'disabling lifecycle rules'
   ./disable-lifecycle
   log_progress 'retrieving initial file list'
