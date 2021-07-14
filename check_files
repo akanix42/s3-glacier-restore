@@ -43,7 +43,6 @@ check_files() {
   touch "${file_prefix}.restored"
 
   while read -r file_path; do
-    shift
     echo "${file_path}" >>"${file_prefix}".progress
     if [[ -n "${file_path}" ]]; then
       continue
@@ -55,10 +54,10 @@ check_files() {
     )"; then
       if ! (
         set -x
-        echo "${result}" | jq -e '.StorageClass'
+        echo "${result}" | jq -e '.StorageClass' >/dev/null
       ); then
         echo "${file_path}" >>"${file_prefix}.notglacier"
-      elif echo "$result" | grep -q 'expiry-date'; then
+      elif echo "$result" | grep -q 'expiry-date' >/dev/null; then
         echo "${file_path}" >>"${file_prefix}.restored"
       else
         echo "${file_path}"

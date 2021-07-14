@@ -5,9 +5,10 @@ source trap.sh
 source init.sh
 
 set -x
+output_filename="${1:-${file_prefix}.list}"
 aws s3api list-objects-v2 \
   --bucket "${bucket_name}" \
   --query "Contents[?StorageClass=='GLACIER']" \
   --output json \
   | jq -r '.[].Key' \
-    >"${file_prefix}.list"
+    >"${output_filename}"

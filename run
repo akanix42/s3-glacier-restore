@@ -18,12 +18,20 @@ buckets=(
 for bucket_suffix in "${buckets[@]}"; do
   export bucket_suffix
   export bucket_name="d360-${tenant}-${env}-${bucket_suffix}"
+  log_progress 'disabling lifecycle rules'
   ./disable-lifecycle
+  log_progress 'retrieving initial file list'
   ./list
+  log_progress 'attempting to permanently restore files'
   ./copy "${file_prefix}.list"
+  log_progress 'retrieving updated file list'
   ./list
+  log_progress 'restoring files'
   ./restore "${file_prefix}.list"
+  log_progress 'waiting for restore to complete'
   ./check_files "${file_prefix}.list"
+  log_progress 'permanently restoring files'
   ./copy "${file_prefix}.restored"
-  ./list
+  log_progress 'updating the file list'
+  ./list "${file_prefix}.list.final"
 done
