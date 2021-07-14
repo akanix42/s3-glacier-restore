@@ -45,6 +45,10 @@ check_files() {
   while read -r file_path; do
     shift
     echo "${file_path}" >>"${file_prefix}".progress
+    if [[ -n "${file_path}" ]]; then
+      continue
+    fi
+
     if result="$(
       set -x
       aws s3api head-object --bucket "${bucket_name}" --key "${file_path}"
