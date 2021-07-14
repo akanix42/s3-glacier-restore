@@ -44,7 +44,7 @@ check_files() {
 
   while read -r file_path; do
     echo "${file_path}" >>"${file_prefix}".progress
-    if [[ -n "${file_path}" ]]; then
+    if [[ -z "${file_path}" ]]; then
       continue
     fi
 
