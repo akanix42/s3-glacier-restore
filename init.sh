@@ -2,8 +2,6 @@
 
 source script-helpers.sh
 
-export AWS_PROFILE=mt
-
 export env="${env:-}"
 export tenant="${tenant:-}"
 export bucket_name="${bucket_name:-}"
